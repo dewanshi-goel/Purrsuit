@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
 <title>Study Planner</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#c8693f">
@@ -45,8 +45,8 @@ nav{display:flex;gap:6px;margin:0 0 14px}nav button{flex:1;background:var(--card
 .sug{display:flex;gap:6px;flex-wrap:wrap}.sug button{background:var(--bg);color:var(--ink);border:1px solid var(--line);padding:4px 10px;font-size:.8rem}
 .hide{display:none!important}details{border-top:1px solid var(--line);padding:6px 0}summary{cursor:pointer;font-weight:600}
 .sm{padding:4px 9px;font-size:.78rem}.mast{opacity:.5}
-#modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:16px;z-index:20}#modal.hide{display:none}
-#modal .box{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;width:min(420px,100%)}#modal input{width:100%;margin-top:6px}
+#modal,#login{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:16px;z-index:20}#modal.hide,#login.hide{display:none}
+#modal .box,#login .box{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;width:min(420px,100%)}#modal input,#login input{width:100%;margin-top:6px}
 nav #undoBtn{flex:none}nav button:disabled{opacity:.45;cursor:default}
 .tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
 .tcard{background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:16px;padding:18px 16px;text-align:left;display:flex;flex-direction:column;gap:6px}
@@ -83,6 +83,19 @@ footer{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:4px 18px 
 @media(max-width:899px){.day{position:fixed;left:0;right:0;bottom:0;max-height:88dvh;transform:translateY(105%);transition:transform .25s;z-index:10;border-radius:18px 18px 0 0;padding-bottom:calc(14px + env(safe-area-inset-bottom,0px))}
 .day.open{transform:none;box-shadow:0 -8px 30px rgba(0,0,0,.35)}.cell{flex-direction:row;flex-wrap:wrap;align-content:flex-start;padding:4px;gap:2px}.dn{width:100%}
 .tk b,.more{display:none}.tk{display:inline-flex}header{padding:10px 12px 8px}main{padding:0 12px 6px}footer{padding-left:12px;padding-right:12px}}
+@media(max-width:899px){
+html,body{overflow-x:hidden;max-width:100%}
+body{height:auto;min-height:100dvh;overflow:visible;display:block}
+header{padding:12px 14px 6px}h1{font-size:1.25rem}
+main{display:block;padding:0 12px calc(84px + env(safe-area-inset-bottom,0px))}
+.view,#v-today{overflow:visible;height:auto;display:block}
+#cal{padding:10px}.grid{grid-auto-rows:minmax(60px,auto)}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:15;gap:2px;padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));background:var(--card);border-top:1px solid var(--line)}
+nav button{flex:1;min-width:0;padding:9px 2px;font-size:.78rem;background:transparent;color:var(--mute);border:0}
+nav button.on{background:var(--accent);color:#fff}
+footer{padding:4px 14px 8px}
+.day{z-index:20}.day *{min-width:0}.seg button{padding:9px 6px}
+}
 </style>
 </head>
 <body>
@@ -134,7 +147,10 @@ footer{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:4px 18px 
     </div>
   </div>
 </main>
-<footer><span id="bkNote"></span><button class="sm ghost" data-act="export">Export backup</button><button class="sm ghost" data-act="import">Import backup</button><input type="file" id="bkFile" accept=".json,application/json" class="hide"></footer>
+<footer><span id="syncNote"></span><button class="sm ghost" id="syncBtn" data-act="syncbtn">Sign in to sync</button><button class="sm ghost hide" id="outBtn" data-act="signout">Sign out</button><span id="bkNote"></span><button class="sm ghost" data-act="export">Export backup</button><button class="sm ghost" data-act="import">Import backup</button><input type="file" id="bkFile" accept=".json,application/json" class="hide"></footer>
+<div id="login" class="hide"><div class="box"><h2>Sign in to sync</h2><p class="sub">Use the account you created for this planner. Your data also stays on this device, so the app still works offline.</p>
+  <input type="email" id="lEmail" placeholder="Email" autocomplete="username"><input type="password" id="lPass" placeholder="Password" autocomplete="current-password" style="margin-top:8px">
+  <p class="msg" id="lMsg"></p><div class="row" style="justify-content:flex-end"><button class="ghost" id="lSkip">Not now</button><button id="lGo">Sign in</button></div></div></div>
 <div id="modal" class="hide"><div class="box"><h2 id="mT"></h2><p class="sub" id="mP"></p><input type="text" id="mI" class="hide" autocomplete="off">
   <div class="row" style="justify-content:flex-end;margin-top:14px"><button class="ghost" id="mC">Cancel</button><button id="mO">OK</button></div></div></div>
 
@@ -143,7 +159,8 @@ footer{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:4px 18px 
 const KEY = 'planner.v1';
 let db = { questions: [], tasks: [] };
 try { db = Object.assign(db, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e) {}
-const save = () => { try { localStorage.setItem(KEY, JSON.stringify(db)); } catch (e) {} };
+let syncOn = false;
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(db)); } catch (e) {} if (syncOn) scheduleSync(); };
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 
 /* ---------- date helpers (local dates, YYYY-MM-DD) ---------- */
@@ -219,7 +236,7 @@ function dlg({ title, text = '', input = null, ok = 'OK', cancel = 'Cancel' }) {
 }
 const undoStack = [];
 function snap(label) { undoStack.push({ label, data: JSON.stringify(db) }); if (undoStack.length > 30) undoStack.shift(); syncUndo(); }
-function undo() { const s = undoStack.pop(); if (!s) return; db = JSON.parse(s.data); save(); render(); }
+function undo() { const s = undoStack.pop(); if (!s) return; db = JSON.parse(s.data); db.sync = Object.assign(db.sync || { cursor: '' }, { h: {} }); save(); render(); }
 function syncUndo() { const b = $('undoBtn'), s = undoStack[undoStack.length - 1]; if (!b) return; b.disabled = !s; b.title = s ? 'Undo: ' + s.label : 'Nothing to undo'; }
 function syncBackup() { const l = db.lastBackup; $('bkNote').textContent = l ? `Last backup ${short(l)}` : 'No backup yet. Data lives only in this browser.'; }
 function exportBackup() {
@@ -231,8 +248,85 @@ async function importBackup(file) {
   let d; try { d = JSON.parse(await file.text()); if (!Array.isArray(d.questions) || !Array.isArray(d.tasks)) throw 0; }
   catch (e) { await dlg({ title: 'Couldn’t read that file', text: 'Choose a backup file exported from this planner.', cancel: '' }); return; }
   if (!await dlg({ title: 'Replace current data?', text: `This backup has ${d.questions.length} questions and ${d.tasks.length} tasks. Your current data will be replaced (you can undo this until you reload).`, ok: 'Replace' })) return;
-  snap('import'); db = Object.assign({ questions: [], tasks: [] }, d); save(); render();
+  snap('import'); db = Object.assign({ questions: [], tasks: [] }, d); db.sync = { h: {}, cursor: '' }; db.tomb = []; save(); render();
 }
+
+/* ---------- cloud sync (Supabase, offline-first) ---------- */
+const SB_URL = 'https://tseekrwjkzfxsxlbfpqt.supabase.co', SB_KEY = 'sb_publishable_mLU8eKS3cre1LL8nWjwyIA_RhFpSES5', SESS = 'planner.session';
+const KINDS = { question: 'questions', task: 'tasks', win: 'wins' };
+let syncing = false, syncTimer = null, mergeChanged = false;
+const getSess = () => { try { return JSON.parse(localStorage.getItem(SESS)); } catch (e) { return null; } };
+const hashOf = r => { const c = Object.assign({}, r); delete c.modified; const t = JSON.stringify(c); let h = 5381; for (let i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) | 0; return h + ':' + t.length; };
+const tomb = (kind, id) => { db.tomb = (db.tomb || []).concat({ kind, id, modified: Date.now() }); };
+async function authCall(path, body) {
+  const res = await fetch(`${SB_URL}/auth/v1/${path}`, { method: 'POST', headers: { apikey: SB_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  const j = await res.json().catch(() => ({}));
+  if (!res.ok) throw Object.assign(new Error(j.error_description || j.msg || 'Sign-in failed'), { status: res.status });
+  localStorage.setItem(SESS, JSON.stringify({ access: j.access_token, refresh: j.refresh_token, exp: Date.now() + (j.expires_in - 60) * 1000, email: (j.user || {}).email || '' }));
+  return getSess();
+}
+const signIn = (email, password) => authCall('token?grant_type=password', { email, password });
+async function token() {
+  let s = getSess(); if (!s) throw Object.assign(new Error('Signed out'), { status: 401 });
+  if (Date.now() > s.exp) { try { s = await authCall('token?grant_type=refresh_token', { refresh_token: s.refresh }); } catch (e) { if (e.status >= 400 && e.status < 500) localStorage.removeItem(SESS); throw e; } }
+  return s.access;
+}
+async function rest(method, qs, body, extra) {
+  const res = await fetch(`${SB_URL}/rest/v1/items${qs}`, { method, headers: Object.assign({ apikey: SB_KEY, Authorization: 'Bearer ' + await token(), 'Content-Type': 'application/json' }, extra || {}), body: body ? JSON.stringify(body) : undefined });
+  if (!res.ok) throw Object.assign(new Error('Sync error ' + res.status), { status: res.status });
+  return method === 'GET' ? res.json() : null;
+}
+function setSync(msg) {
+  const on = !!getSess();
+  $('syncNote').textContent = msg || (on ? 'Signed in' : 'Sync is off');
+  $('syncBtn').textContent = on ? 'Sync now' : 'Sign in to sync'; $('outBtn').classList.toggle('hide', !on);
+}
+function scheduleSync() { clearTimeout(syncTimer); if (!syncing && getSess() && navigator.onLine) syncTimer = setTimeout(sync, 2500); }
+function mergeRow(r) {
+  const S = db.sync;
+  if (r.kind === 'settings') {
+    if ((r.modified || 0) > (db.tmMod || 0)) { db.topicMap = Object.assign({}, db.topicMap, r.data.map); db.tmMod = r.modified; mergeChanged = true; }
+    else db.topicMap = Object.assign({}, r.data.map, db.topicMap);
+    return;
+  }
+  const key = KINDS[r.kind]; if (!key) return;
+  const i = db[key].findIndex(x => x.id === r.id), loc = db[key][i];
+  if (r.deleted) { if (loc && (loc.modified || 0) <= r.modified) { db[key].splice(i, 1); delete S.h[r.id]; mergeChanged = true; } return; }
+  if (db.tomb.some(t => t.id === r.id)) return;
+  const rec = Object.assign({}, r.data, { id: r.id, modified: r.modified });
+  if (!loc) { db[key].push(rec); S.h[r.id] = hashOf(rec); mergeChanged = true; }
+  else if (r.modified > (loc.modified || 0)) { db[key][i] = rec; S.h[r.id] = hashOf(rec); mergeChanged = true; }
+}
+async function sync() {
+  if (syncing || !getSess() || !navigator.onLine) return;
+  syncing = true; mergeChanged = false; setSync('Syncing…');
+  try {
+    db.sync = db.sync || { h: {}, cursor: '' }; db.tomb = db.tomb || [];
+    const S = db.sync, now = Date.now(), recs = () => Object.entries(KINDS).flatMap(([kind, key]) => db[key].map(r => ({ kind, r })));
+    recs().forEach(({ r }) => { if (S.h[r.id] !== hashOf(r)) r.modified = now; });          /* stamp local edits */
+    if (S.h.topicMap !== hashOf({ m: db.topicMap })) db.tmMod = now;
+    for (let more = true; more;) {                                                           /* pull what changed elsewhere */
+      const rows = await rest('GET', `?select=id,kind,data,modified,deleted,synced_at&order=synced_at.asc&limit=1000${S.cursor ? '&synced_at=gt.' + encodeURIComponent(S.cursor) : ''}`);
+      rows.forEach(mergeRow); if (rows.length) S.cursor = rows[rows.length - 1].synced_at; more = rows.length === 1000;
+    }
+    const out = [];                                                                          /* push what changed here */
+    recs().forEach(({ kind, r }) => { const h = hashOf(r); if (S.h[r.id] !== h) { const d = Object.assign({}, r); delete d.modified; out.push({ id: r.id, kind, data: d, modified: r.modified || now, deleted: false, _h: h }); } });
+    db.tomb.forEach(t => out.push({ id: t.id, kind: t.kind, data: {}, modified: t.modified, deleted: true }));
+    const th = hashOf({ m: db.topicMap });
+    if (S.h.topicMap !== th) out.push({ id: 'topicMap', kind: 'settings', data: { map: db.topicMap }, modified: db.tmMod || now, deleted: false, _h: th });
+    for (let i = 0; i < out.length; i += 200) await rest('POST', '?on_conflict=user_id,id', out.slice(i, i + 200).map(({ _h, ...x }) => x), { Prefer: 'resolution=merge-duplicates,return=minimal' });
+    out.forEach(x => { if (x._h) S.h[x.id] = x._h; }); db.tomb = [];
+    save(); if (mergeChanged) render();
+    setSync('Synced ' + new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }));
+  } catch (e) {
+    setSync(!getSess() ? 'Signed out. Please sign in again.' : (!navigator.onLine || e instanceof TypeError) ? 'Offline. Will sync when you’re back online.' : 'Sync problem: ' + e.message);
+  } finally { syncing = false; }
+}
+async function signOut() {
+  if (!await dlg({ title: 'Sign out?', text: 'Your data stays on this device. Sync pauses until you sign in again.', ok: 'Sign out' })) return;
+  localStorage.removeItem(SESS); setSync();
+}
+function openLogin() { $('lMsg').textContent = ''; $('login').classList.remove('hide'); $('lEmail').focus(); }
 
 /* ---------- actions ---------- */
 function addTask(title, tag, urgency, date) {
@@ -272,7 +366,7 @@ function renderCal() {
       + ts.slice(0, 3).map(t => `<span class="tk${t.done ? ' done' : ''}"><i style="background:${URG[t.urgency]}"></i><b>${esc(t.title)}</b></span>`).join('')
       + (ts.length > 3 ? `<span class="more">+${ts.length - 3} more</span>` : '') + '</button>';
   }
-  $('grid').innerHTML = h; $('grid').style.gridTemplateRows = `repeat(${rows}, minmax(0, 1fr))`;
+  $('grid').innerHTML = h; $('grid').style.gridTemplateRows = wide() ? `repeat(${rows}, minmax(0, 1fr))` : '';
 }
 function renderDay() {
   $('day').classList.toggle('open', !!sel); if (!sel) return;
@@ -469,9 +563,9 @@ function init() {
       vm = { y: x.getFullYear(), m: x.getMonth() }; if (!n && wide()) sel = t; render();
     }
     if (d.dt) setDt(d.dt);
-    if (d.deltask) { snap('deleted task'); db.tasks = db.tasks.filter(x => x.id !== d.deltask); save(); render(); }
-    if (d.delq) { snap('deleted question'); db.questions = db.questions.filter(x => x.id !== d.delq); save(); render(); }
-    if (d.delwin) { snap('deleted win'); db.wins = db.wins.filter(x => x.id !== d.delwin); save(); render(); }
+    if (d.deltask) { snap('deleted task'); tomb('task', d.deltask); db.tasks = db.tasks.filter(x => x.id !== d.deltask); save(); render(); }
+    if (d.delq) { snap('deleted question'); tomb('question', d.delq); db.questions = db.questions.filter(x => x.id !== d.delq); save(); render(); }
+    if (d.delwin) { snap('deleted win'); tomb('win', d.delwin); db.wins = db.wins.filter(x => x.id !== d.delwin); save(); render(); }
     if (d.sug) pickSug(d.sug);
     if (d.rev) revisit(d.rev, d.c);
     if (d.mast) setStatus(d.mast, 'mastered');
@@ -483,12 +577,25 @@ function init() {
     if (d.act === 'closeday') { sel = null; render(); }
     if (d.act === 'export') exportBackup();
     if (d.act === 'import') $('bkFile').click();
+    if (d.act === 'syncbtn') { if (getSess()) sync(); else openLogin(); }
+    if (d.act === 'signout') signOut();
     if (d.rest) setStatus(d.rest, 'active');
     if (d.ren) renameTopic(d.ren);
     if (d.alias) addAlias(d.alias);
   });
   $('bkFile').onchange = e => { const f = e.target.files[0]; if (f) importBackup(f); e.target.value = ''; };
+  $('lSkip').onclick = () => { localStorage.setItem('planner.skipLogin', '1'); $('login').classList.add('hide'); };
+  $('lPass').onkeydown = e => { if (e.key === 'Enter') $('lGo').click(); };
+  $('lGo').onclick = async () => {
+    $('lMsg').textContent = 'Signing in…';
+    try { await signIn($('lEmail').value.trim(), $('lPass').value); $('lPass').value = ''; $('login').classList.add('hide'); setSync(); sync(); }
+    catch (e) { $('lMsg').textContent = e.status ? 'Wrong email or password.' : 'Couldn’t reach the server. Check your connection.'; }
+  };
+  window.addEventListener('online', sync);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) sync(); });
+  setInterval(() => { if (!document.hidden) sync(); }, 60000);
   setDt('tasks'); show(new Date().getDay() === 0 ? 'revise' : 'today'); render();
+  syncOn = true; setSync(); if (getSess()) sync(); else if (!localStorage.getItem('planner.skipLogin')) openLogin();
 }
 init();
 /* offline support + installability (only runs when served over https/http, not from a local file) */

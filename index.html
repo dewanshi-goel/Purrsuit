@@ -96,12 +96,14 @@ nav button.on{background:var(--accent);color:#fff}
 footer{padding:4px 14px 8px}
 .day{z-index:20}.day *{min-width:0}.seg button{padding:9px 6px}
 }
+#gear.on{color:var(--accent)}
 </style>
 </head>
 <body>
 <header>
   <div><h1>Study Planner</h1><div class="sub" id="today"></div></div>
   <nav id="nav"><button data-tab="today">Calendar</button><button data-tab="revise">Revise</button><button data-tab="topics">Topics</button><button data-tab="wins">Wins</button><button id="undoBtn" data-act="undo" disabled>↶ Undo</button></nav>
+  <button class="ghost" id="gear" data-tab="settings" aria-label="Settings" title="Settings" style="font-size:1.3rem">⚙</button>
 </header>
 <main>
   <div id="v-today" class="view">
@@ -146,8 +148,16 @@ footer{padding:4px 14px 8px}
       <div class="card" id="allQ"></div>
     </div>
   </div>
+  <div id="v-settings" class="view cols2 hide">
+    <div class="card"><h2>Sync</h2><p class="sub">Keeps your PC and phone in step. It works offline and catches up when you’re back online.</p>
+      <p id="syncNote" style="margin:0 0 12px"></p>
+      <div class="row"><button id="syncBtn" data-act="syncbtn">Sign in to sync</button><button class="ghost hide" id="outBtn" data-act="signout" style="border:1px solid var(--line)">Sign out</button></div></div>
+    <div class="card"><h2>Backup</h2><p class="sub">Your data lives in this browser and in the cloud. A backup file is your safety net if something goes wrong.</p>
+      <p id="bkNote" style="margin:0 0 12px"></p>
+      <div class="row"><button data-act="export">Export backup</button><button class="ghost" data-act="import" style="border:1px solid var(--line)">Import backup</button><input type="file" id="bkFile" accept=".json,application/json" class="hide"></div></div>
+  </div>
 </main>
-<footer><span id="syncNote"></span><button class="sm ghost" id="syncBtn" data-act="syncbtn">Sign in to sync</button><button class="sm ghost hide" id="outBtn" data-act="signout">Sign out</button><span id="bkNote"></span><button class="sm ghost" data-act="export">Export backup</button><button class="sm ghost" data-act="import">Import backup</button><input type="file" id="bkFile" accept=".json,application/json" class="hide"></footer>
+
 <div id="login" class="hide"><div class="box"><h2>Sign in to sync</h2><p class="sub">Use the account you created for this planner. Your data also stays on this device, so the app still works offline.</p>
   <input type="email" id="lEmail" placeholder="Email" autocomplete="username"><input type="password" id="lPass" placeholder="Password" autocomplete="current-password" style="margin-top:8px">
   <p class="msg" id="lMsg"></p><div class="row" style="justify-content:flex-end"><button class="ghost" id="lSkip">Not now</button><button id="lGo">Sign in</button></div></div></div>
@@ -485,8 +495,8 @@ async function addAlias(g) {
 function showSug() { $('sug').innerHTML = suggest($('qTopics').value).map(x => `<button type="button" data-sug="${esc(x)}">${esc(x)}</button>`).join(''); }
 function pickSug(n) { const el = $('qTopics'), p = el.value.split(','); p[p.length - 1] = ' ' + n; el.value = p.join(',').replace(/^ /, '') + ', '; el.focus(); showSug(); }
 function show(v) {
-  ['today', 'revise', 'topics', 'wins'].forEach(n => $('v-' + n).classList.toggle('hide', n !== v));
-  [...$('nav').children].forEach(b => b.classList.toggle('on', b.dataset.tab === v));
+  ['today', 'revise', 'topics', 'wins', 'settings'].forEach(n => $('v-' + n).classList.toggle('hide', n !== v));
+  [...$('nav').children].forEach(b => b.classList.toggle('on', b.dataset.tab === v)); $('gear').classList.toggle('on', v === 'settings');
 }
 
 function renderWins() {

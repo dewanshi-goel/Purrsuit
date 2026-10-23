@@ -19,7 +19,7 @@
 html{height:100%}
 body{margin:0;height:100dvh;overflow:hidden;display:flex;flex-direction:column;color:var(--ink);font-family:var(--body);line-height:1.45;
 background-color:var(--bg);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px),linear-gradient(180deg,var(--g1) 0,var(--g2) 38%,var(--g3) 100%);
-background-size:28px 28px,28px 28px,100% 100%;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
+background-size:28px 28px,28px 28px,100% 100%;background-repeat:repeat,repeat,no-repeat;background-attachment:scroll,scroll,fixed;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
 h1,h2{font-family:var(--head);margin:0;font-weight:600}h1{font-size:1.5rem;line-height:1.1}h2{font-size:1.1rem;margin-bottom:8px}
 .sub{color:var(--mute);font-size:.9rem;margin:2px 0 12px}.hide{display:none!important}
 .empty{color:var(--mute);font-size:.92rem;padding:6px 0}.msg{color:var(--r);font-size:.85rem;min-height:1.2em}
@@ -136,8 +136,9 @@ nav button.on{background:var(--accent);color:var(--dark);border-color:var(--edge
 body:not([data-tab=today]){height:auto;min-height:100dvh;overflow:visible;display:block}
 body:not([data-tab=today]) main{display:block;padding-bottom:48px}
 body:not([data-tab=today]) .view{overflow:visible;height:auto}
-body:not([data-tab=today]) header{position:sticky;top:0;z-index:20;background:var(--bg)}
+body:not([data-tab=today]) header{position:sticky;top:0;z-index:20;background:var(--bg);background:color-mix(in srgb,var(--bg) 80%,transparent);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
 }
+@media(min-width:900px){header{max-width:none;padding-left:max(20px,calc((100% - 1200px)/2 + 20px));padding-right:max(20px,calc((100% - 1200px)/2 + 20px))}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>

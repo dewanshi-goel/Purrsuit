@@ -1,7 +1,7 @@
 {
-  "name": "Study Planner",
-  "short_name": "Planner",
-  "description": "Tasks, DSA revision and wins in one cozy place.",
+  "name": "Purrsuit",
+  "short_name": "Purrsuit",
+  "description": "Your day, planned with a ginger cat: tasks, revision and focus time.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

@@ -1,6 +1,6 @@
 /* Study Planner service worker: caches the app so it opens offline.
    Bump CACHE when you publish a new version of index.html. */
-const CACHE = 'planner-v5';
+const CACHE = 'planner-v6';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './cat-icon-192.png', './cat-icon-512.png'];
 
 self.addEventListener('install', e => {

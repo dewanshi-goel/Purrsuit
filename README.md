@@ -13,7 +13,7 @@
 </div>
 
 <p align="center">
-  <img src="docs/screenshots/calendar-desktop.png" alt="Purrsuit calendar on desktop" width="850">
+  <img src="calendar-desktop.png" alt="Purrsuit calendar on desktop" width="850">
 </p>
 
 ---
@@ -41,15 +41,15 @@ You plan tasks on a **month calendar**, log solved **DSA and quant questions** w
 
 | Calendar (phone) | Day panel | Sunday revision |
 |---|---|---|
-| <img src="calendar-phone.png" width="220"> | <img src="docs/screenshots/day-sheet-phone.png" width="220"> | <img src="docs/screenshots/revise.png" width="220"> |
+| <img src="calendar-phone.png" width="220"> | <img src="day-sheet-phone.png" width="220"> | <img src="revise.png" width="220"> |
 
 | Topics | Wins and study time | Focus timer |
 |---|---|---|
-| <img src="docs/screenshots/topics.png" width="220"> | <img src="docs/screenshots/wins.png" width="220"> | <img src="docs/screenshots/focus.png" width="220"> |
+| <img src="topics.png" width="220"> | <img src="wins.png" width="220"> | <img src="focus.png" width="220"> |
 
 | Night theme | Telegram reminder |
 |---|---|
-| <img src="docs/screenshots/night.png" width="300"> | <img src="docs/screenshots/telegram.png" width="300"> |
+| <img src="night.png" width="300"> | <img src="telegram.png" width="300"> |
 
 ## Tech stack
 

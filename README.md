@@ -41,7 +41,7 @@ You plan tasks on a **month calendar**, log solved **DSA and quant questions** w
 
 | Calendar (phone) | Day panel | Sunday revision |
 |---|---|---|
-| <img src="docs/screenshots/calendar-phone.png" width="220"> | <img src="docs/screenshots/day-sheet-phone.png" width="220"> | <img src="docs/screenshots/revise.png" width="220"> |
+| <img src="calendar-phone.png" width="220"> | <img src="docs/screenshots/day-sheet-phone.png" width="220"> | <img src="docs/screenshots/revise.png" width="220"> |
 
 | Topics | Wins and study time | Focus timer |
 |---|---|---|

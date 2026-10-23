@@ -170,9 +170,6 @@ Purrsuit/
 ├── cat-icon-192.png         # app icons
 ├── cat-icon-512.png
 ├── reminders-function.ts    # Supabase Edge Function for Telegram reminders
-├── docs/
-│   ├── screenshots/         # images used in this README
-│   └── specifications.md    # full specification, problems faced, interview notes
 └── README.md
 ```
 

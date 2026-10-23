@@ -24,8 +24,6 @@ Purrsuit started as a fix for a personal problem: I was logging solved DSA quest
 
 You plan tasks on a **month calendar**, log solved **DSA and quant questions** with a difficulty colour, and the app decides **which questions to revise on which Sunday**. A **focus timer** tracks study time, a **Wins** page shows how much you have achieved, and a **Telegram bot** sends daily reminders, even when your devices are off.
 
-> Purrsuit is built for one person (me), not for teams.
-
 ## Features
 
 - **Calendar** with a month view. Each date shows its tasks; tap a date to add tasks or log solved questions for that day. Drag a task to another day on a PC.
@@ -265,11 +263,5 @@ Add `?test=1` to the function URL in a one-off `net.http_post` call to send a te
 **Current limitations:** single user, `localStorage` size limits, newest-edit-wins sync (two offline edits to the same item keep only one), fixed revision intervals, Telegram instead of WhatsApp.
 
 **Ideas for later:** carry unfinished tasks to the next day, ambient focus sounds, a daily progress ring, a weekly review page, search, a quick-add hotkey on the PC, a Pomodoro countdown mode, and IndexedDB storage.
-
-## License
-
-MIT. Add a `LICENSE` file to the repository (GitHub can create one for you from a template) or change this section to the license you prefer.
-
----
 
 <p align="center">Made with 🐾 by <a href="https://github.com/dewanshi-goel">Dewanshi</a></p>

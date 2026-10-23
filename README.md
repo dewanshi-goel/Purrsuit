@@ -266,10 +266,6 @@ Add `?test=1` to the function URL in a one-off `net.http_post` call to send a te
 
 **Ideas for later:** carry unfinished tasks to the next day, ambient focus sounds, a daily progress ring, a weekly review page, search, a quick-add hotkey on the PC, a Pomodoro countdown mode, and IndexedDB storage.
 
-## About the build
-
-Purrsuit was built iteratively over many sessions with an AI assistant (Claude). I defined the requirements and rules, made the design decisions, tested on my own PC and phone, and reported the bugs, and the assistant wrote and revised the code. The full list of problems faced and how each was fixed is in [`docs/specifications.md`](docs/specifications.md).
-
 ## License
 
 MIT. Add a `LICENSE` file to the repository (GitHub can create one for you from a template) or change this section to the license you prefer.
